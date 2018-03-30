@@ -11,7 +11,7 @@ from hdfs.ext.kerberos import KerberosClient
 from utils import stat_to_attrs
 
 log = logging.getLogger()
-log.setLevel(logging.WARNING)
+log.setLevel(logging.DEBUG)
 
 while log.handlers:
     log.handlers.pop()
@@ -61,20 +61,20 @@ class HDFS(Operations):
     # ==================
 
     def access(self, path, mode):
-        log.warning('access({}, {})'.format(path, mode))
+        log.debug('access({}, {})'.format(path, mode))
         full_path = self._full_path(path)
 
         stat = self.hdfs_client.status(full_path)
 
         # TODO:
         # if not has_access(stat, mode):
-        #     log.warning("path {} not accessible with rights {}".format(path, oct(mode)))
+        #     log.debug("path {} not accessible with rights {}".format(path, oct(mode)))
         #     raise FuseOSError(errno.EACCES)
 
         self._cache['last_cmd'] = 'access'
 
     def chmod(self, path, mode):
-        log.warning('chmod({}, {})'.format(path, mode))
+        log.debug('chmod({}, {})'.format(path, mode))
 
         full_path = self._full_path(path)
 
@@ -87,7 +87,7 @@ class HDFS(Operations):
         self._cache['last_cmd'] = 'chmod'
 
     def chown(self, path, uid, gid):
-        log.warning('chown({}, {})'.format(uid, gid))
+        log.debug('chown({}, {})'.format(uid, gid))
         full_path = self._full_path(path)
         self._cache['last_cmd'] = 'chown'
         raise FuseOSError(errno.ENOSYS)
@@ -97,7 +97,7 @@ class HDFS(Operations):
         """
         Return file attributes. The "stat" structure is described in detail in the stat(2) manual page. For the given pathname, this should fill in the elements of the "stat" structure. If a field is meaningless or semi-meaningless (e.g., st_ino) then it should be set to 0 or given a "reasonable" value. This call is pretty much required for a usable filesystem.
         """
-        log.warning('getattr({}, {})'.format(path, fh))
+        log.debug('getattr({}, {})'.format(path, fh))
 
         full_path = self._full_path(path)
 
@@ -130,7 +130,7 @@ class HDFS(Operations):
         Because of its complexity, it is described separately below.
         Required for essentially any filesystem, since it's what makes ls and a whole bunch of other things work.
         """
-        log.warning('readdir({}, {})'.format(path, fh))
+        log.debug('readdir({}, {})'.format(path, fh))
 
         full_path = self._full_path(path)
 
@@ -156,7 +156,7 @@ class HDFS(Operations):
             yield r[0], attrs, 0  # len(path.lstrip('/').split('/'))-1
 
     def readlink(self, path):
-        log.warning('readlink({})'.format(path))
+        log.debug('readlink({})'.format(path))
         self._cache['last_cmd'] = 'readlink'
         raise FuseOSError(errno.ENOSYS)
         # TODO:
@@ -168,7 +168,7 @@ class HDFS(Operations):
         #     return pathname
 
     def mknod(self, path, mode, dev):
-        log.warning('mknod({}, {}, {})'.format(path, mode, dev))
+        log.debug('mknod({}, {}, {})'.format(path, mode, dev))
         #
         # full_path = self._full_path(path)
 
@@ -178,7 +178,7 @@ class HDFS(Operations):
         # return os.mknod(self._full_path(path), mode, dev)
 
     def rmdir(self, path):
-        log.warning('rmdir({})'.format(path))
+        log.debug('rmdir({})'.format(path))
 
         full_path = self._full_path(path)
 
@@ -190,7 +190,7 @@ class HDFS(Operations):
             raise FuseOSError(errno.ENOENT)
 
     def mkdir(self, path, mode):
-        log.warning('mkdir({}, {})'.format(path, mode))
+        log.debug('mkdir({}, {})'.format(path, mode))
 
         full_path = self._full_path(path)
 
@@ -200,7 +200,7 @@ class HDFS(Operations):
         return 0
 
     def statfs(self, path):
-        log.warning('statfs({})'.format(path))
+        log.debug('statfs({})'.format(path))
         full_path = self._full_path(path)
         self._cache['last_cmd'] = 'statfs'
         raise FuseOSError(errno.ENOSYS)
@@ -211,7 +211,7 @@ class HDFS(Operations):
         #                                                  'f_frsize', 'f_namemax'))
 
     def unlink(self, path):
-        log.warning('unlink({})'.format(path))
+        log.debug('unlink({})'.format(path))
         full_path = self._full_path(path)
 
         self._cache['last_cmd'] = 'unlink'
@@ -221,13 +221,13 @@ class HDFS(Operations):
             raise FuseOSError(errno.ENOENT)
 
     def symlink(self, name, target):
-        log.warning('symlink({}, {})'.format(name, target))
+        log.debug('symlink({}, {})'.format(name, target))
         self._cache['last_cmd'] = 'symlink'
         raise FuseOSError(errno.ENOSYS)
         # return os.symlink(name, self._full_path(target))
 
     def rename(self, old, new):
-        log.warning('rename({}, {})'.format(old, new))
+        log.debug('rename({}, {})'.format(old, new))
 
         full_old_path = self._full_path(old)
         full_new_path = self._full_path(new)
@@ -237,19 +237,19 @@ class HDFS(Operations):
         except HdfsError as e:
             if e.exception == 'AccessControlException':
                 raise FuseOSError(errno.EACCES)
-            log.warning("Unhandled exception: ", e.exception)
+            log.debug("Unhandled exception: ", e.exception)
             raise FuseOSError(errno.ENOSYS)
 
         self._cache['last_cmd'] = 'rename'
 
     def link(self, target, name):
-        log.warning('link({}, {})'.format(target, name))
+        log.debug('link({}, {})'.format(target, name))
         self._cache['last_cmd'] = 'link'
         raise FuseOSError(errno.ENOSYS)
         # return os.link(self._full_path(target), self._full_path(name))
 
     def utimens(self, path, times=None):
-        log.warning('utimens({}, {})'.format(path, times))
+        log.debug('utimens({}, {})'.format(path, times))
 
         full_path = self._full_path(path)
 
@@ -260,7 +260,7 @@ class HDFS(Operations):
             self.hdfs_client.set_times(full_path, access_time=at, modification_time=mt)
         except HdfsError as e:
             if e.exception == 'IOException':
-                log.warning(e)
+                log.debug(e)
                 raise FuseOSError(errno.ENOSYS)
 
         self._cache['last_cmd'] = 'utimens'
@@ -305,7 +305,7 @@ class HDFS(Operations):
         :param flags:
         :return: The file descriptor (int)
         """
-        log.warning('open({}, {})'.format(path, flags))
+        log.debug('open({}, {})'.format(path, flags))
         full_path = self._full_path(path)
 
         fh = self._open(full_path, self.getattr(path)['st_size'], is_new_file=False)
@@ -321,7 +321,7 @@ class HDFS(Operations):
         :param fi:
         :return: The file descriptor (int)
         """
-        log.warning('create({}, {}, {})'.format(path, mode, fi))
+        log.debug('create({}, {}, {})'.format(path, mode, fi))
         full_path = self._full_path(path)
 
         fh = self._open(full_path, 0, is_new_file=True)
@@ -365,7 +365,7 @@ class HDFS(Operations):
                 raise FuseOSError(errno.EFAULT)
             elif e.exception == 'IOException':
                 raise FuseOSError(errno.EFAULT)
-            log.warning("Unhandled exception: ", e.exception)
+            log.debug("Unhandled exception: ", e.exception)
             raise FuseOSError(errno.ENOSYS)
 
     def _get_parts(self, parts, fs, fe):
@@ -420,7 +420,7 @@ class HDFS(Operations):
         return read_from_tmp, read_from_hdfs
 
     def read(self, path, length, offset, fh):
-        log.warning('read({}, {}, {}, {})'.format(path, length, offset, fh))
+        log.debug('read({}, {}, {}, {})'.format(path, length, offset, fh))
         full_path = self._full_path(path)
         self._check_is_open(full_path, fh)
 
@@ -449,7 +449,7 @@ class HDFS(Operations):
         return result
 
     def write(self, path, buf, offset, fh):
-        log.warning('write({}, {}, {}, {})'.format(path, buf, offset, fh))
+        log.debug('write({}, {}, {}, {})'.format(path, buf, offset, fh))
         full_path = self._full_path(path)
         self._check_is_open(full_path, fh)
 
@@ -469,7 +469,7 @@ class HDFS(Operations):
         :return:
         """
 
-        log.warning('truncate({}, {}, {})'.format(path, length, fh))
+        log.debug('truncate({}, {}, {})'.format(path, length, fh))
         full_path = self._full_path(path)
 
         # if length>current_length, add \0 bytes
@@ -491,7 +491,7 @@ class HDFS(Operations):
         return 0
 
     def flush(self, path, fh):
-        log.warning('flush({}, {})'.format(path, fh))
+        log.debug('flush({}, {})'.format(path, fh))
         full_path = self._full_path(path)
         self._check_is_open(full_path, fh)
 
@@ -514,7 +514,7 @@ class HDFS(Operations):
         return 0
 
     def fsync(self, path, fdatasync, fh):
-        log.warning('fsync({}, {}, {})'.format(path, fdatasync, fh))
+        log.debug('fsync({}, {}, {})'.format(path, fdatasync, fh))
         self._cache['last_cmd'] = 'fsync'
         full_path = self._full_path(path)
         self._check_is_open(full_path, fh)
@@ -544,11 +544,11 @@ class HDFS(Operations):
                     encoding=None,
                 )
             except HdfsError as e:
-                log.warning("Unhandled exception: ", e.exception)
+                log.debug("Unhandled exception: ", e.exception)
                 raise FuseOSError(errno.ENOSYS)
 
     def release(self, path, fh):
-        log.warning('release({}, {})'.format(path, fh))
+        log.debug('release({}, {})'.format(path, fh))
         self._cache['last_cmd'] = 'release'
         full_path = self._full_path(path)
         self._check_is_open(full_path, fh)
