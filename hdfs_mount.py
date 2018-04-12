@@ -588,6 +588,8 @@ if __name__ == '__main__':
 
     hdfs_server = cfg['hdfs']['server']
     hdfs_mount_root = cfg['hdfs']['mount_root']
+    hdfs_user = cfg['hdfs']['hdfs_user']
+    hdfs_group = cfg['hdfs']['hdfs_group']
     mount_dest_dir = cfg['mount']['dest_dir']
 
     if not os.path.isdir(mount_dest_dir):
@@ -599,5 +601,5 @@ if __name__ == '__main__':
     else:
         hdfs_client = Client(hdfs_server)
 
-    operations = HDFS(hdfs_client, hdfs_mount_root, None, None)
+    operations = HDFS(hdfs_client, hdfs_mount_root, hdfs_user, hdfs_group)
     FUSE(operations, mountpoint=mount_dest_dir, raw_fi=False, nothreads=True, foreground=True)
