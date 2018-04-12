@@ -2,3 +2,4 @@ fusepy==2.0.4
 hdfs==2.1.0
 docopt==0.6.2
 PyYAML==3.12
+requests-kerberos==0.12.0

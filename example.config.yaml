@@ -8,4 +8,5 @@ mount:
         dest_dir: /tmp/myhdfsmount
         extra:
                 allow_root: True
-                allow_other: True
+                allow_other: True 
+                nothreads: False

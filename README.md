@@ -5,24 +5,56 @@ Python 3
 ### Install
 
 ```
-pip install -r requirements.txt
+pip3 install -r requirements.txt
+```
+
+If you will be using kerberos, install libkrb5-dev:
+
+```
+sudo apt-get install libkrb5-dev
+```
+
+### Configuration
+
+```
+cp example.config.yaml config.yaml
+$EDITOR config.yaml
 ```
 
 ### Running
 
+If you are using kerberos, run a kinit:
+
 ```
 kinit -kt $USER $USER@REALM
+```
 
-mkdir dest_mount
-python hdfs_mount.py http://hdfs_hostname:50070 <hdfs-root-path> dest_mount <hdfs-user> <hdfs-group>
+In all cases you then will have to create a new empty directory that with be the mount point:
+
+```
+mkdir /mnt/dest_mount
+```
+
+And finaly you can run py-hdfs-fuse:
+
+```
+python3 [--loglevel LEVEL] config.yaml
 ```
 
 Have fun!
+
+Note: if anything goes wrong and you have to kill py-hdfs-mount, you will probably have to run this command on the mounted folder to unlock it:
+
+```
+fusermount -u /mnt/dest_mount
+```
+
 
 ### Tested with
 
 
 * [x] Vim (open file, edit randomly, save and close)
+* [x] cp/mv
 
 ### Functionnalities
 
@@ -60,9 +92,9 @@ Have fun!
 * [x] open
 * [x] create
 * [x] read
-* [x] write
+* [x] write (caching is done in memory)
 * [x] truncate
-* [x] flush
-* [x] fsync
+* [x] flush (writes the in memory written chunks to a temporary file in the local FS in the right order and calls fsync)
+* [x] fsync (send the temporary file to HDFS)
 * [x] release
 

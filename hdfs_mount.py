@@ -452,7 +452,7 @@ class HDFS(Operations):
         return result
 
     def write(self, path, buf, offset, fh):
-        log.debug('write({}, {}, {}, {})'.format(path, buf, offset, fh))
+        log.debug('write({}, {}, {})'.format(path, offset, fh))
         full_path = self._full_path(path)
         self._check_is_open(full_path, fh)
 
@@ -505,7 +505,7 @@ class HDFS(Operations):
                 self.file_handle_p[full_path]['tmp'].seek(offset)
                 self.file_handle_p[full_path]['tmp'].write(buf)
                 self.file_handle_p[full_path]['tmp'].flush()
-                os.fsync(self.file_handle_p[full_path]['tmp'].fileno())
+                #os.fsync(self.file_handle_p[full_path]['tmp'].fileno())
 
                 self.file_handle_p[full_path]['written_parts'].append((offset, offset + len(buf)))
 
@@ -606,4 +606,4 @@ if __name__ == '__main__':
         hdfs_client = Client(hdfs_server)
 
     operations = HDFS(hdfs_client, hdfs_mount_root, hdfs_user, hdfs_group)
-    FUSE(operations, mountpoint=mount_dest_dir, raw_fi=False, nothreads=True, foreground=True, **mount_extra_params)
+    FUSE(operations, mountpoint=mount_dest_dir, raw_fi=False, foreground=True, **mount_extra_params)
