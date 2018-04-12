@@ -4,14 +4,17 @@ import os
 import sys
 import tempfile
 
+from docopt import docopt
 from fuse import FUSE, FuseOSError, Operations
 from hdfs import HdfsError
+from hdfs.client import Client
 from hdfs.ext.kerberos import KerberosClient
+import yaml
 
 from utils import stat_to_attrs
 
+
 log = logging.getLogger()
-log.setLevel(logging.DEBUG)
 
 while log.handlers:
     log.handlers.pop()
@@ -561,10 +564,40 @@ class HDFS(Operations):
             del self.file_handle_p[full_path]
 
         return 0
-
-
+ 
 if __name__ == '__main__':
-    hdfs_client = KerberosClient(sys.argv[1])
+    doc = """A simple program to mount HDFS as a linux filesystem (using FUSEpy).
+    
+    Usage: {0} [--loglevel LEVEL]  CONFIG
+    
+    Options:
+      --loglevel=<level> The log level [default: INFO]
+      --version  Show program version
+    
+    """.format(sys.argv[0])
+ 
+    args = docopt(doc, version="0.1", help=False)
+    log_level = args['--loglevel']
+    if log_level == 'DEBUG':
+        log.setLevel(logging.DEBUG)
+    elif log_level == 'INFO' or log_level is None:
+        log.setLevel(logging.INFO)
 
-    operations = HDFS(hdfs_client, sys.argv[2], sys.argv[4], sys.argv[5])
-    FUSE(operations, mountpoint=sys.argv[3], raw_fi=False, nothreads=True, foreground=True)
+    with open(args['CONFIG'], 'r') as f:
+        cfg = yaml.load(f)
+
+    hdfs_server = cfg['hdfs']['server']
+    hdfs_mount_root = cfg['hdfs']['mount_root']
+    mount_dest_dir = cfg['mount']['dest_dir']
+
+    if not os.path.isdir(mount_dest_dir):
+        print('Directory {0} does not exists, please specify an existing directory.'.format(mount_dest_dir))
+        exit(1)
+
+    if cfg['hdfs']['kerberos']:
+        hdfs_client = KerberosClient(hdfs_server)
+    else:
+        hdfs_client = Client(hdfs_server)
+
+    operations = HDFS(hdfs_client, hdfs_mount_root, None, None)
+    FUSE(operations, mountpoint=mount_dest_dir, raw_fi=False, nothreads=True, foreground=True)

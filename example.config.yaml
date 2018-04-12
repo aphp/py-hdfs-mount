@@ -1,0 +1,7 @@
+hdfs:
+        server: http://hdfs_hostname:50070
+        mount_root: "/users/test"
+        kerberos: True
+mount:
+        dest_dir: /tmp/myhdfsmount
+
