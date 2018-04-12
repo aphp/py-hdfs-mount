@@ -6,4 +6,6 @@ hdfs:
         kerberos: True
 mount:
         dest_dir: /tmp/myhdfsmount
-
+        extra:
+                allow_root: True
+                allow_other: True

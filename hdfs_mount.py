@@ -591,6 +591,10 @@ if __name__ == '__main__':
     hdfs_user = cfg['hdfs']['hdfs_user']
     hdfs_group = cfg['hdfs']['hdfs_group']
     mount_dest_dir = cfg['mount']['dest_dir']
+    if 'extra' in cfg['mount']:
+        mount_extra_params = cfg['mount']['extra']
+    else:
+        mount_extra_params = {}
 
     if not os.path.isdir(mount_dest_dir):
         print('Directory {0} does not exists, please specify an existing directory.'.format(mount_dest_dir))
@@ -602,4 +606,4 @@ if __name__ == '__main__':
         hdfs_client = Client(hdfs_server)
 
     operations = HDFS(hdfs_client, hdfs_mount_root, hdfs_user, hdfs_group)
-    FUSE(operations, mountpoint=mount_dest_dir, raw_fi=False, nothreads=True, foreground=True)
+    FUSE(operations, mountpoint=mount_dest_dir, raw_fi=False, nothreads=True, foreground=True, **mount_extra_params)
