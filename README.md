@@ -38,7 +38,7 @@ mkdir /mnt/dest_mount
 And finaly you can run py-hdfs-fuse:
 
 ```
-python3 [--loglevel LEVEL] config.yaml
+python3 hdfs_mount.py [--loglevel LEVEL] config.yaml
 ```
 
 Have fun!
