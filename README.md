@@ -5,6 +5,10 @@ Python 3
 ### Install
 
 ```
+sudo apt-get install fuse libfuse2
+```
+
+```
 pip3 install -r requirements.txt
 ```
 
