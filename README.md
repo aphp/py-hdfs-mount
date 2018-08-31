@@ -51,6 +51,7 @@ Note: if anything goes wrong and you have to kill py-hdfs-mount, you will probab
 
 ```
 fusermount -u /mnt/dest_mount
+umount -l /mnt/dest_mount
 ```
 
 
