@@ -70,7 +70,7 @@ umount -l /mnt/dest_mount
 * [ ] directory stored as a zip file in HDFS (to solve small files problem)
 * [ ] directory stored as a avro file in HDFS (to solve small files problem)
 * [ ] CRC32 checksum
-* [ ] Load options from configuration file
+* [x] Load options from configuration file
 
 
 ### Implemented FUSE methods
